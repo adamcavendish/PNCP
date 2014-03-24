@@ -1,0 +1,7 @@
+# for build directories
+build/*
+out/*
+useless
+
+# build files
+Makefile
