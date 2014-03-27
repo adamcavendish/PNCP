@@ -79,6 +79,7 @@ void OutNode01::initialize() {
 
 void OutNode01::finish() {
     cancelAndDelete(pDriverMsg);
+    pDriverMsg = nullptr;
 }//finish()
 
 InfoMessage01 * OutNode01::generateMessage() {

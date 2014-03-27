@@ -1,7 +1,7 @@
 simple OutNode03 {
     parameters:
-        double timeoutTime = default(1.0);
         int counter = default(10);
+        double sendProb = default(1.0); // 0.0 - 1.0 being valid.
         @display("i=icon/chuyin");
     gates:
         output oport;
@@ -25,7 +25,7 @@ simple Router03 {
         output oport[];
 }
 
-network NetworkPNCP {
+network NetworkCOPE {
     types:
         channel Channel extends ned.DelayChannel {
             delay = 100ms;

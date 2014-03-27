@@ -3,20 +3,71 @@
 #include <vector>
 #include <list>
 #include <algorithm>
+#include <random>
+// omnetpp
+#include <omnetpp.h>
 
 #define utilityUNUSED(x) (void)(x)
 
+enum SOURCE_NODE {
+    SROUTER = -1,
+    S0 = 0,
+    S1 = 1
+};//enum SOURCE_NODE
+
+enum DEST_NODE {
+    DROUTER = -1,
+    D0 = 0,
+    D1 = 1
+};//enum DEST_NODE
+
 namespace utility {
 
-std::vector<char>
-xorPacket(const std::vector<char> & packet1, const std::vector<char> & packet2);
+template <typename msgType>
+void sendCopyOf(cSimpleModule * module, msgType * pMsg, const char * port) {
+    msgType * copy = check_and_cast<msgType *>(pMsg->dup());
+    module->send(copy, port);
+}//sendCopyOf(module, pMsg, port)
 
-inline std::vector<char>
-codePacket(const std::vector<char> & packet1, const std::vector<char> & packet2)
-{ return xorPacket(packet1, packet2); }
+template <typename msgType>
+void sendCopyOf(cSimpleModule * module, msgType * pMsg, const char * port, const int portId) {
+    msgType * copy = check_and_cast<msgType *>(pMsg->dup());
+    module->send(copy, port, portId);
+}//sendCopyOf(module, pMsg, port, portId)
 
-inline std::vector<char>
-decodePacket(const std::vector<char> & codedPacket, const std::vector<char> & packet)
-{ return xorPacket(codedPacket, packet); }
+/**
+ *  @brief dump() is used to dump InfoMessage for debug or log usage
+ */
+template <typename T>
+void dump(T * pMsg) {
+    int pMsgLength = pMsg->getMsgLength();
+
+    if(pMsg->getIsCoded()) {     
+        EV << "  Message: This is a coded message.\n";
+    } else {
+        EV << "  Message: ";
+        for(int i = 0; i < pMsgLength; ++i) {
+            EV << pMsg->getRawMessage(i);
+        }//for
+        EV << "\n";
+    }//if-else
+    EV << "  binary format: [" << pMsg->getMsgLength() << "] ";
+    for(int i = 0; i < pMsgLength; ++i) {
+        EV << static_cast<unsigned int>(pMsg->getRawMessage(i)) << " ";
+    }//for
+    EV << "\n";
+    EV << "  IsCoded: " << pMsg->getIsCoded() << "\n";
+    EV << "  S: " << pMsg->getSource()
+       << "  D: " << pMsg->getDestination() << "\n";
+}//dump(pMsg)
+
+template <typename MsgType>
+void copy_str_n(const char * str_beg, std::size_t n, MsgType * pMsg) {
+    for(int i = 0; i < n; ++i)
+        pMsg->setRawMessage(i, *(str_beg + i));
+    pMsg->setRawMessage(n, '\0');
+}//copy_str_n(str_beg, n, pMsg)
+
+void random_init();
 
 }//namespace utility
