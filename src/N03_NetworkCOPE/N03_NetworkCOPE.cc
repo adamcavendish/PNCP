@@ -17,7 +17,6 @@
 
 class OutNode03 : public cSimpleModule {
 private:
-    std::random_device rd;
     std::default_random_engine engine;
     std::uniform_real_distribution<double> udist;
     int counter;           // counter is the number of packets to send

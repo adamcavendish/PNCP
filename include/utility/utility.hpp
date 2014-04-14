@@ -1,5 +1,6 @@
 #pragma once
 // STL
+#include <utility>
 #include <vector>
 #include <list>
 #include <algorithm>
@@ -56,8 +57,8 @@ void dump(T * pMsg) {
         EV << static_cast<unsigned int>(pMsg->getRawMessage(i)) << " ";
     }//for
     EV << "\n";
-    EV << "  IsCoded: " << pMsg->getIsCoded() << "\n";
-    EV << "  S: " << pMsg->getSource()
+    EV << "  IsCoded: " << pMsg->getIsCoded()
+       << "  S: " << pMsg->getSource()
        << "  D: " << pMsg->getDestination() << "\n";
 }//dump(pMsg)
 
@@ -68,6 +69,27 @@ void copy_str_n(const char * str_beg, std::size_t n, MsgType * pMsg) {
     pMsg->setRawMessage(n, '\0');
 }//copy_str_n(str_beg, n, pMsg)
 
-void random_init();
+/**
+ * Because c++11 do not allow template lambda so I just reimplement this for easy using.
+ *
+ * @brief extract the maximum queue's index
+ * @return index of the maximum sized queue. if no queue in the range, return -1.
+ */
+template <typename ForwardIterator>
+int
+get_max_sized_queue(ForwardIterator beg, ForwardIterator end) {
+    if(beg == end)
+        return -1;
+
+    int largest_index = 0;
+    ForwardIterator largest = beg;
+    for(int i = 0; beg != end; ++beg, ++i) {
+        if(largest->size() < beg->size()) {
+            largest = beg;
+            largest_index = i;
+        }//if
+    }//while
+    return largest_index;
+}//get_max_sized_queue(beg, end)
 
 }//namespace utility
