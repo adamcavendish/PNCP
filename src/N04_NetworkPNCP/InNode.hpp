@@ -6,10 +6,15 @@
 #include <omnetpp.h>
 // current project
 #include "build/N04_NetworkPNCP_m.h"
+#include "logger/logger.hpp"
 
 class InNode04 : public cSimpleModule {
 private:
     std::deque<InfoMessage04 *> queue;
+
+    logger::Logger stat_logger;
+    int stat_timePassed;
+    int stat_packageReceived;
 public:
     InNode04();
     virtual ~InNode04();
@@ -25,5 +30,7 @@ protected:
     void addMessageToQueue(InfoMessage04 * pInfoMsg);
     /// @brief decode the message. 'pInfoMsg' is the coded message
     InfoMessage04 * decodePacket(InfoMessage04 * pInfoMsg);
+    /// @brief write statistics
+    void writeStatistics();
 };//class InNode04
 

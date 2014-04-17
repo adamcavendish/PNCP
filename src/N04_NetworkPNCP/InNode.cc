@@ -17,13 +17,17 @@
 #include "build/N04_NetworkPNCP_m.h"
 #include "utility/utility.hpp"
 
-InNode04::InNode04() {
-}// constructor
+InNode04::InNode04() :
+    stat_timePassed(0),
+    stat_packageReceived(0)
+{}
 
 InNode04::~InNode04() {
 }// destructor
 
 void InNode04::initialize() {
+    std::string logPath = par("logPath");
+    stat_logger.open(logPath);
 }//initialize()
 
 void InNode04::finish() {
@@ -31,9 +35,13 @@ void InNode04::finish() {
         delete i;
     }//for
     queue.clear();
+    stat_logger.close();
 }//finish()
 
 void InNode04::handleMessage(cMessage * pHandleMsg) {
+    // edit statistics
+    ++stat_packageReceived;
+
     InfoMessage04 * imsg = check_and_cast<InfoMessage04 *>(pHandleMsg);
     filterMessage(imsg);
 }//handleMessage(pHandleMsg)
@@ -48,23 +56,20 @@ void InNode04::filterMessage(InfoMessage04 * pInfoMsg) {
             if(pInfoMsg->getIsCoded() == true) {
                 InfoMessage04 * imsg = decodePacket(pInfoMsg);
                 useMessage(imsg);
-            } else {
-                useMessage(pInfoMsg);
-            }//if-else
+            }//if
         }//if-else
     }//if-else
 }//filterMessage(pInfoMsg)
 
 void InNode04::useMessage(InfoMessage04 * pInfoMsg) {
     if(pInfoMsg->getDestination() != getIndex()) {
-        EV << "THE MESSAGE IS NOT SENT TO ME!\n";
+        EV << "InNode <" << getIndex() << " > -- THE MESSAGE IS NOT SENT TO ME!\n";
         utility::dump(pInfoMsg);
         throw std::runtime_error("THE MESSAGE IS NOT SENT TO ME!");
     }//if
 
     // if the message is sent to me
-    EV << "********************InNode<" << getIndex() << "> -- Receiving Message"
-       << "********************\n";
+    EV << "InNode<" << getIndex() << "> -- Receiving Message\n";
     utility::dump(pInfoMsg);
     delete pInfoMsg;
 }//useMessage(pInfoMsg)
@@ -103,4 +108,10 @@ InfoMessage04 * InNode04::decodePacket(InfoMessage04 * pInfoMsg) {
 
     return decodedPacket;
 }//decodePacket(pInfoMsg)
+
+void InNode04::writeStatistics() {
+    stat_logger.log() << stat_timePassed << ", " << stat_packageReceived
+                      << std::endl;
+    ++stat_timePassed;
+}//writeStatistics()
 

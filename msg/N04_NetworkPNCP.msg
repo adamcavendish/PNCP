@@ -4,5 +4,8 @@ message InfoMessage04 {
     int source;
     int destination;
     int msgLength;
+    int packageId;
 }
+
+message DriverMessage04 {}
 

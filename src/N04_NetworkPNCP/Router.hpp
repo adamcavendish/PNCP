@@ -15,19 +15,34 @@
 #include <omnetpp.h>
 // current project
 #include "build/N04_NetworkPNCP_m.h"
+#include "logger/logger.hpp"
+
+namespace logger { class Logger; }
 
 class Router04 : public cSimpleModule {
 private:
+    std::random_device rd;
     std::default_random_engine engine;
-    std::uniform_real_distribution<double> udist_codePacketProb;
+    std::uniform_real_distribution<double> udist_forwardPacketProb;
 
     int queueLength;
     const static std::size_t QUEUE_NUM = 2;
     std::deque<InfoMessage04 *> queue[QUEUE_NUM];
+    DriverMessage04 * pDriverMsg; // this message drives me to send out a message 'msg'
 
-    double codePacketProb;
-
-    cMessage * pDriverMsg; // this message drives me to send out a message 'msg'
+    double alphaProb;
+    double betaProb;
+    
+    // staticstics
+    logger::Logger stat_logger;
+    int stat_timePassed;
+    int stat_packageFrom[2];
+    int stat_packageForwardNumber[2];
+    int stat_packageCodeNumber;
+    int stat_packageLostNumber[2];
+    int stat_waitTime;
+    double stat_avg_queue_sz[2];
+    double stat_avg_queue_all_sz;
 public:
     Router04();
     virtual ~Router04();
@@ -47,11 +62,13 @@ protected:
     bool forwardPacketCondition();
     /// @brief forward a message in the queue (forward one message from the queue with maximum length)
     void forwardOneMessageInQueue();
-    /// @brief code or wait message in the queue
-    void codeOrWaitMessageInQueue();
+    /// @brief code a message in the queue on condition is met up, return true if the condition is met up, else false
+    bool codeMessageInQueueOnConditionTrue();
     /// @brief code 2 packets in the queues
     InfoMessage04 * codePacket();
     /// @brief wait for packet
     void waitForPacket();
+    /// @brief write statistics
+    void writeStatistics();
 };//class Router04
 

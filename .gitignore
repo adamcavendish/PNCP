@@ -1,7 +1,10 @@
 # for build directories
 build/*
 out/*
-useless
+useless/
+log/*
+results/*
+DataVis/figures/*
 
 # build files
 Makefile

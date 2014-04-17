@@ -15,11 +15,15 @@
 // current project
 #include "build/N04_NetworkPNCP_m.h"
 #include "utility/utility.hpp"
+#include "logger/logger.hpp"
 
 OutNode04::OutNode04() :
+    engine(rd()),
     udist_generatePacketProb(0, 1),
     pDriverMsg(nullptr),
-    pMsg(nullptr)
+    pMsg(nullptr),
+    stat_timePassed(0),
+    stat_packageSent(0)
 {}
 
 OutNode04::~OutNode04() {
@@ -33,14 +37,21 @@ OutNode04::~OutNode04() {
 void OutNode04::initialize() {
     counter = par("counter");
     generatePacketProb = par("generatePacketProb");
-    pDriverMsg = new cMessage("");
+    pDriverMsg = new DriverMessage04("");
     pMsg = generateMessage();
+
+    std::string logPath = par("logPath");
+    stat_logger.open(logPath);
+    WATCH(stat_timePassed);
+    WATCH(stat_packageSent);
+
     scheduleAt(simTime(), pDriverMsg);
 }// initialize()
 
 void OutNode04::finish() {
     cancelAndDelete(pDriverMsg);
     pDriverMsg = nullptr;
+    stat_logger.close();
 }//finish()
 
 void OutNode04::handleMessage(cMessage * pHandleMsg) {
@@ -56,12 +67,13 @@ void OutNode04::handleMessage(cMessage * pHandleMsg) {
         return;
     }//if
 
-    EV << "********************OutNode<" << getIndex() << "> -- sending message"
-       << "********************\n";
+    EV << "OutNode<" << getIndex() << "> -- generate message\n";
     utility::dump(pMsg);
     utility::sendCopyOf(this, pMsg, "oport");
     utility::sendCopyOf(this, pMsg, "connect");
     scheduleAt(simTime()+1, pDriverMsg);
+
+    writeStatistics();
 }// handleMessage(pHandleMsg)
 
 bool OutNode04::checkSendMessage() {
@@ -84,5 +96,22 @@ InfoMessage04 * OutNode04::generateMessage() {
     pTempMsg->setSource(getIndex());
     pTempMsg->setDestination(getIndex());
     pTempMsg->setMsgLength(msgLength);
+
+    // edit statistics
+    ++stat_packageSent;
+
     return pTempMsg;
 }//generateMessage()
+
+void OutNode04::writeStatistics() {
+    /**
+     * format:
+     * time-passed, package-sent, package-sending-percentage
+     */
+    // `ps` means package sent
+    // `pct` means percentage
+    double ps_pct = (stat_timePassed > 0) ? static_cast<double>(stat_packageSent)/stat_timePassed : 0;
+    stat_logger.log() << stat_timePassed << ", " << stat_packageSent << ", " << ps_pct << std::endl;
+
+    ++stat_timePassed;
+}//writeStatistics()

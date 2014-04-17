@@ -41,6 +41,7 @@ void sendCopyOf(cSimpleModule * module, msgType * pMsg, const char * port, const
  */
 template <typename T>
 void dump(T * pMsg) {
+#ifndef NDEBUG
     int pMsgLength = pMsg->getMsgLength();
 
     if(pMsg->getIsCoded()) {     
@@ -60,6 +61,7 @@ void dump(T * pMsg) {
     EV << "  IsCoded: " << pMsg->getIsCoded()
        << "  S: " << pMsg->getSource()
        << "  D: " << pMsg->getDestination() << "\n";
+#endif//NDEBUG
 }//dump(pMsg)
 
 template <typename MsgType>
@@ -76,8 +78,7 @@ void copy_str_n(const char * str_beg, std::size_t n, MsgType * pMsg) {
  * @return index of the maximum sized queue. if no queue in the range, return -1.
  */
 template <typename ForwardIterator>
-int
-get_max_sized_queue(ForwardIterator beg, ForwardIterator end) {
+int get_max_sized_queue(ForwardIterator beg, ForwardIterator end) {
     if(beg == end)
         return -1;
 
@@ -91,5 +92,22 @@ get_max_sized_queue(ForwardIterator beg, ForwardIterator end) {
     }//while
     return largest_index;
 }//get_max_sized_queue(beg, end)
+
+template <typename T>
+bool checkType(cObject * p) {
+    T ret = dynamic_cast<T>(p);
+    return (ret != nullptr);
+}//checkType(p)
+
+template <typename T>
+bool checkType(const cObject * p) {
+    return checkType<T>(const_cast<cObject *>(p));
+}//checkType(p)
+
+template <typename msgType>
+void scheduleCopyOf(cSimpleModule * module, msgType * pMsg, std::size_t scheduleTime) {
+    msgType * pMsgDup = check_and_cast<msgType *>(pMsg->dup());
+    module->scheduleAt(simTime() + scheduleTime, pMsgDup);
+}//scheduleCopyOf(pMsg, scheduleTime)
 
 }//namespace utility

@@ -2,6 +2,7 @@ simple OutNode04 {
     parameters:
         int counter = default(10);
         double generatePacketProb = default(1.0); // 0.0 - 1.0 being valid.
+        string logPath = default("log/OutNode04.log");
         @display("i=icon/chuyin");
     gates:
         output oport;
@@ -11,6 +12,7 @@ simple OutNode04 {
 simple InNode04 {
     parameters:
         @display("i=icon/pikachu");
+        string logPath = default("log/InNode04.log");
     gates:
         input iport;
         input connect;
@@ -19,7 +21,9 @@ simple InNode04 {
 simple Router04 {
     parameters:
         int queueLength = default(10);
-        double codePacketProb = default(0.5); // 0.0 - 1.0 begin valid
+        double alphaProb = default(0.5); // 0.0 - 1.0 being valid
+        double betaProb = default(0.5); // 0.0 - 1.0 being valid
+        string logPath = default("log/Router04.log");
         @display("i=block/routing,white");
     gates:
         input iport[];
@@ -44,3 +48,4 @@ network NetworkPNCP {
         outNode[0].connect --> Channel --> inNode[1].connect;
         outNode[1].connect --> Channel --> inNode[0].connect;
 }
+

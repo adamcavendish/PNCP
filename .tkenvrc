@@ -1,5 +1,5 @@
 # Partial Tkenv config file -- see $HOME/.tkenvrc as well
-inspector "NetworkPNCP" "NetworkPNCP" "2" "607x337+0+405:normal"
 inspector "NetworkCOPE" "NetworkCOPE" "2" "607x337+0+0:normal"
+inspector "NetworkPNCP" "NetworkPNCP" "2" "607x337+0+405:normal"
 inspector "NetworkRaw" "NetworkRaw" "2" "607x337+751+376:normal"
 
